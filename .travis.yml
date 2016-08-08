@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: gHtKpoI3E3YyZKLgUqulVzswYR+U3Bq6YeuH2KC4xkOPbRf5HmWi9BUc6Mdil+NTK177HOLp1z53NnT3YI3Ji5P8dB2zu9wmrwTj4L5LCEu8OHvrl4u+1sYs2d7jMk9rA2uUYAI5e73+OagzqJhq/hV4dWRBOvezARDBxrn2KyDV360NhyfKMo8zUHPevaJv9b5tyHf7aD51cV0o2zn8FM+8+UGKPgGu7aF/zLMAx12nUhkqEw0HVGI5VHZI9ncwrQxa1AX8YjtiCEjqjxZZk6PoD+Uzb4N5wNnKDFhiazERRl+oL8Ky9a+ru9EiLA3l6L/sp6UcRDPNGNZMjacPQiWUm1dJCcHaiZ/XrXHhQGoy65PJmDOZo17jL0KvZt1bRoutt2Cn/BHfT9Esq8oKIBPCkgHBrsd9mJ4/IRu0yXsKmf49uTOL48tlGXEVRqi/B2UvGzzJF79W3cbKEMx0VAG9E0QutFtSrkzSK3aJArBelbtTwNqw8AWt3B/I/NHPF4sTQhvd107H2giFOBnD0okKdYVPZThB+R/IG3bxGFxsa9rxTNmAyihSEnOqT+rCwE0jEh8mdnEeqsH8FKh4/c4vw1JcTKUfdJccgFKqmaKzcz1HlvoJBzio81A28jCSBdmDe7DSmAmcNcHhlyC0PM1gN7hLHLMiaQxYx/4bDqE=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Penelope-s-Experiences-in-Scotland--13-Being-Extracts-from-the-Commonplace-Book-of-Penelope-Ha__1217
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
